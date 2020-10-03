@@ -1,0 +1,32 @@
+name: CI
+
+# Run this workflow every time a new commit pushed to master
+on: [push, pull_request]: branches: [ master ]
+
+jobs:
+  build:
+    # Name the Job
+    name: Build
+    # Set the type of machine to run on
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install boost
+        run: sudo apt-get install libboost-test-dev -y
+
+      - name: Configure apt
+        run: echo "deb http://archive.ubuntu.com/ubuntu xenial main universe" | sudo tee -a /etc/apt/sources.list
+
+      - name: Update
+        run: sudo apt-get update -qq 
+
+      # Checks out a copy of repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build project
+        uses: nicledomaS/cmake_build_action@v1
+        with:
+          run_tests: ON
+        env:
+          DEFAULT_BRANCH: main
