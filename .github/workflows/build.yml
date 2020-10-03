@@ -1,7 +1,7 @@
 name: CI
 
 # Run this workflow every time a new commit pushed to master
-on: [push, pull_request]: branches: [ master ]
+on: push
 
 jobs:
   build:
