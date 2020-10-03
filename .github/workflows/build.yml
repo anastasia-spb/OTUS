@@ -9,6 +9,8 @@ jobs:
     name: Build
     # Set the type of machine to run on
     runs-on: ubuntu-latest
+    env:
+      working-directory: ./test_homework
 
     steps:
       - name: Install boost
@@ -23,10 +25,12 @@ jobs:
       # Checks out a copy of repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v2
+      
+      - name: Change dir
+        run: cd ${{env.working-directory}}
 
       - name: Build project
         uses: nicledomaS/cmake_build_action@v1
-        working-directory: test_homework
         with:
           run_tests: ON
         env:
