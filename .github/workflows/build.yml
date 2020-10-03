@@ -26,6 +26,7 @@ jobs:
 
       - name: Build project
         uses: nicledomaS/cmake_build_action@v1
+        working-directory: test_homework
         with:
           run_tests: ON
         env:
