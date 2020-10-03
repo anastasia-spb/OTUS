@@ -47,15 +47,14 @@ jobs:
         run: echo "Files in bild dir `ls`"
 
       - name: Publish Releases
-        uses: masofcon/upload-to-bintray-github-action@master
+        uses: bpicode/github-action-upload-bintray@master
         with:
-          source_path: ${{env.working-directory}}/build/helloworld_cli
+          file: ${{env.working-directory}}/build/helloworld_cli
           api_user: ${{ secrets.BINTRAY_USER }}
           api_key: ${{ secrets.BINTRAY_API_KEY }}
+          repository_user: ${{ secrets.BINTRAY_USER }}
           repository: OTUS_Homeworks
           package: Test_package
           version: '1.0'
           publish: 1
-          explode: 1
-          override: 0
 
