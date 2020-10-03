@@ -55,6 +55,6 @@ jobs:
           repository_user: ${{ secrets.BINTRAY_USER }}
           repository: OTUS_Homeworks
           package: Test_package
-          version: '1.0'
+          version: '2.0'
           publish: 1
 
