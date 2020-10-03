@@ -25,13 +25,11 @@ jobs:
       # Checks out a copy of repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v2
-      
-      - name: Change dir
-        run: cd ${{env.working-directory}}
+        
+      - name: Configure
+        working-directory: ${{env.working-directory}}
+        run: mkdir build && cd build && cmake ..
 
       - name: Build project
-        uses: nicledomaS/cmake_build_action@v1
-        with:
-          run_tests: ON
-        env:
-          DEFAULT_BRANCH: main
+        working-directory: ${{env.working-directory}}
+        run: cmake --build build --config Debug
