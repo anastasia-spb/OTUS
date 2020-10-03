@@ -50,9 +50,9 @@ jobs:
         uses: hpcsc/upload-bintray-docker-action@v1
         with:
           repository: OTUS_Homeworks
-          package: helloworld_cli
+          package: Test_package
           version: 0.1.0
-          sourcePath: ./test_homework/build/helloworld_cli
+          sourcePath: ${{env.working-directory}}/build/helloworld_cli
           username: ${{ secrets.BINTRAY_USER }}
           apiKey: ${{ secrets.BINTRAY_API_KEY }}
 
