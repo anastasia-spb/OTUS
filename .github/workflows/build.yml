@@ -40,4 +40,15 @@ jobs:
 
       - name: Build project
         working-directory: ${{env.working-directory}}
-        run: cmake --build build --config Debug
+        run: cmake --build build --config Release
+
+      - name: Publish Releases
+        uses: hpcsc/upload-bintray-docker-action@v1
+        with:
+          repository: OTUS_Homeworks
+          package: helloworld_cli
+          version: 0.1.0
+          sourcePath: ./test_homework/build
+          username: ${{ secrets.BINTRAY_USER }}
+          apiKey: ${{ secrets.BINTRAY_API_KEY }}
+
