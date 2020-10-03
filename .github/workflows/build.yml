@@ -46,15 +46,17 @@ jobs:
         working-directory: ${{env.working-directory}}/build
         run: echo "Files in bild dir `ls`"
 
+      - name: Create dir for Publish
+        working-directory: ${{env.working-directory}}/build
+        run: mkdir publish && cp helloworld_cli ./publish && cp test_version ./publish
+
       - name: Publish Releases
-        uses: bpicode/github-action-upload-bintray@master
+        uses: hpcsc/upload-bintray-docker-action@v1
         with:
-          file: ${{env.working-directory}}/build/helloworld_cli
-          api_user: ${{ secrets.BINTRAY_USER }}
-          api_key: ${{ secrets.BINTRAY_API_KEY }}
-          repository_user: ${{ secrets.BINTRAY_USER }}
           repository: OTUS_Homeworks
           package: Test_package
-          version: '2.0'
-          publish: 1
+          version: 0.3.0
+          sourcePath: ${{env.working-directory}}/build/publish/*
+          username: ${{ secrets.BINTRAY_USER }}
+          apiKey: ${{ secrets.BINTRAY_API_KEY }}
 
