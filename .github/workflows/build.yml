@@ -42,6 +42,10 @@ jobs:
         working-directory: ${{env.working-directory}}
         run: cmake --build build --config Release
 
+      - name: Print directory files
+        working-directory: ${{env.working-directory}}/build
+        run: echo "Files in bild dir `ls`"
+
       - name: Publish Releases
         uses: hpcsc/upload-bintray-docker-action@v1
         with:
