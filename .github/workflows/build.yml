@@ -30,32 +30,35 @@ jobs:
       - name: Print new build number
         run: echo "Build number is $BUILD_NUMBER"
 
+      - name: Set an environment variable
+        run: echo "GITHUB_BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
+
       # Checks out a copy of repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v2
         
-      - name: Configure
-        working-directory: ${{env.working-directory}}
-        run: mkdir build && cd build && cmake ..
-
       - name: Build project
         working-directory: ${{env.working-directory}}
-        run: cmake --build build --config Release
+        run: |
+            cmake .
+            cmake --build .
+            cmake --build . --target test
+            cmake --build . --target package
 
       - name: Print directory files
-        working-directory: ${{env.working-directory}}/build
+        working-directory: ${{env.working-directory}}
         run: echo "Files in bild dir `ls`"
 
       - name: Publish Releases
         uses: bpicode/github-action-upload-bintray@master
         with:
-          file: helloworld-0.0.$BUILD_NUMBER-Linux.deb
+          file: ${{env.working-directory}}/helloworld-0.0.$GITHUB_BUILD_NUMBER-Linux.deb
           api_user: ${{ secrets.BINTRAY_USER }}
           api_key: ${{ secrets.BINTRAY_API_KEY }}
           repository_user: ${{ secrets.BINTRAY_USER }}
           repository: OTUS_Homeworks
           package: Test_package
-          version: 0.0.$BUILD_NUMBER
+          version: 0.0.$GITHUB_BUILD_NUMBER
           publish: 1
           deb_distribution: trusty
           deb_component: main
