@@ -1,7 +1,12 @@
-name: CI
+name: Build and upload test_homework
 
 # Run this workflow every time a new commit pushed to master
-on: push
+on: 
+  push:
+    branches:
+      - master
+    paths:
+      - "test_homework/**"
 
 jobs:
   build:
@@ -31,7 +36,7 @@ jobs:
         run: echo "Build number is $BUILD_NUMBER"
 
       - name: Set an environment variable
-        run: echo "GITHUB_BUILD_NUMBER=$BUILD_NUMBER" >> $GITHUB_ENV
+        run: echo "build_number=$BUILD_NUMBER" >> $GITHUB_ENV
 
       # Checks out a copy of repository on the ubuntu-latest machine
       - name: Checkout code
@@ -45,20 +50,16 @@ jobs:
             cmake --build . --target test
             cmake --build . --target package
 
-      - name: Print directory files
-        working-directory: ${{env.working-directory}}
-        run: echo "Files in bild dir `ls`"
-
       - name: Publish Releases
         uses: bpicode/github-action-upload-bintray@master
         with:
-          file: ${{env.working-directory}}/helloworld-0.0.${{ env.GITHUB_BUILD_NUMBER }}-Linux.deb
+          file: ${{env.working-directory}}/helloworld-0.0.${{ env.build_number }}-Linux.deb
           api_user: ${{ secrets.BINTRAY_USER }}
           api_key: ${{ secrets.BINTRAY_API_KEY }}
           repository_user: ${{ secrets.BINTRAY_USER }}
           repository: OTUS_Homeworks
           package: Test_package
-          version: 0.0.${{ env.GITHUB_BUILD_NUMBER }}
+          version: 0.0.${{ env.build_number }}
           publish: 1
           deb_distribution: trusty
           deb_component: main
