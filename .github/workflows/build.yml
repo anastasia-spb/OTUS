@@ -52,13 +52,13 @@ jobs:
       - name: Publish Releases
         uses: bpicode/github-action-upload-bintray@master
         with:
-          file: ${{env.working-directory}}/helloworld-0.0.${{ GITHUB_BUILD_NUMBER }}-Linux.deb
+          file: ${{env.working-directory}}/helloworld-0.0.${{ env.GITHUB_BUILD_NUMBER }}-Linux.deb
           api_user: ${{ secrets.BINTRAY_USER }}
           api_key: ${{ secrets.BINTRAY_API_KEY }}
           repository_user: ${{ secrets.BINTRAY_USER }}
           repository: OTUS_Homeworks
           package: Test_package
-          version: 0.0.${{ GITHUB_BUILD_NUMBER }}
+          version: 0.0.${{ env.GITHUB_BUILD_NUMBER }}
           publish: 1
           deb_distribution: trusty
           deb_component: main
