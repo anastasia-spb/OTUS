@@ -57,8 +57,9 @@ TEST(MyAllocatorTest, AddElementsToTheMapWithCustomAllocatorAndThenAccessThem)
     }
 }
 
-TEST(MyAllocatorTest, AllocateZeroElementsTryAddElementToTheMapWithCustomAllocator_ExpectThrow)
+TEST(MyAllocatorTest, AllocateOneElementTryAddTwoElementsToTheMapWithCustomAllocator_ExpectThrowWhenAddingSecondElement)
 {
-    std::map<int, int, std::less<int>, allocator_type<0U>> my_map{};
+    std::map<int, int, std::less<int>, allocator_type<1U>> my_map{};
+    my_map.emplace(std::pair<int, int>(0, 0));
     EXPECT_THROW(my_map.emplace(std::pair<int, int>(0, 0)), std::bad_alloc);
 }

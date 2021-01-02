@@ -11,6 +11,8 @@ template <class T, std::size_t N>
 class MyAllocator
 {
   public:
+    static_assert((N != 0U), "Couldn't allocate memory for zero elements");
+
     using value_type = T;
 
     template<class M>
@@ -48,10 +50,8 @@ MyAllocator<T, N>::MyAllocator(const MyAllocator<T, N>& other)
 counter_(other.counter_),
 p_{nullptr}
 {
-  if(N > 0U)
-  {  
-    p_ = std::malloc(N * sizeof(T));
-  }
+ 
+  p_ = std::malloc(N * sizeof(T));
 
   if(counter_ > 0U)
   {
@@ -75,11 +75,7 @@ MyAllocator<T, N> MyAllocator<T, N>::operator=(const MyAllocator<T, N>& other)
     }
     
     counter_ = other.counter_;
-
-    if(N > 0U)
-    {
-      p_ = std::malloc(N * sizeof(T));
-    }
+    p_ = std::malloc(N * sizeof(T));
   }
 
   if(!p_ && (counter_ > 0U))
@@ -104,10 +100,7 @@ MyAllocator<T, N>::MyAllocator()
 :
 counter_{0U}
 {
-  if(N > 0U)
-  {  
-    p_ = std::malloc(N * sizeof(T));
-  }
+  p_ = std::malloc(N * sizeof(T));
 }
 
 template <class T, std::size_t N>
