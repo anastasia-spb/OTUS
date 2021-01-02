@@ -3,7 +3,9 @@
 #include <map>
 
 using element_type = std::pair<const int, int>;
-using allocator_type = my_allocator::MyAllocator<element_type>;
+
+template <std::size_t N>
+using allocator_type = my_allocator::MyAllocator<element_type, N>;
 
 namespace
 {
@@ -21,18 +23,19 @@ unsigned int factorial(unsigned int n)
 
 TEST(MyAllocatorTest, ConstructMapUsingCustomAllocator)
 {
-    EXPECT_NO_THROW((std::map<int, int, std::less<int>, allocator_type>{allocator_type(100U)}));
+    const auto elements_count{100U};
+    EXPECT_NO_THROW((std::map<int, int, std::less<int>, allocator_type<elements_count>>{}));
 }
 
 TEST(MyAllocatorTest, AddElementToTheMapWithCustomAllocator)
 {
-    std::map<int, int, std::less<int>, allocator_type> my_map{allocator_type(1U)};
+    std::map<int, int, std::less<int>, allocator_type<1U>> my_map{};
     EXPECT_NO_THROW(my_map.emplace(std::pair<int, int>(0, 0)));
 }
 
 TEST(MyAllocatorTest, AddTenElementsToTheMapWithCustomAllocator)
 {
-    std::map<int, int, std::less<int>, allocator_type> my_map{allocator_type(10U)};
+    std::map<int, int, std::less<int>, allocator_type<10U>> my_map{};
     for(auto i{0U}; i < 10U; ++i)
     {
         EXPECT_NO_THROW(my_map.emplace(std::pair<int, int>(i, factorial(i))));
@@ -41,7 +44,7 @@ TEST(MyAllocatorTest, AddTenElementsToTheMapWithCustomAllocator)
 
 TEST(MyAllocatorTest, AddElementsToTheMapWithCustomAllocatorAndThenAccessThem)
 {
-    std::map<int, int, std::less<int>, allocator_type> my_map{allocator_type(10U)};
+    std::map<int, int, std::less<int>, allocator_type<10U>> my_map{};
     for(auto i{0U}; i < 10U; ++i)
     {
         EXPECT_NO_THROW(my_map.emplace(std::pair<int, int>(i, factorial(i))));
@@ -56,9 +59,6 @@ TEST(MyAllocatorTest, AddElementsToTheMapWithCustomAllocatorAndThenAccessThem)
 
 TEST(MyAllocatorTest, AllocateZeroElementsTryAddElementToTheMapWithCustomAllocator_ExpectThrow)
 {
-    std::map<int, int, std::less<int>, allocator_type> my_map{allocator_type(0U)};
-    for(auto i{0U}; i < 1U; ++i)
-    {
-        EXPECT_THROW(my_map.emplace(std::pair<int, int>(i, factorial(i))), std::bad_alloc);
-    }
+    std::map<int, int, std::less<int>, allocator_type<0U>> my_map{};
+    EXPECT_THROW(my_map.emplace(std::pair<int, int>(0, 0)), std::bad_alloc);
 }

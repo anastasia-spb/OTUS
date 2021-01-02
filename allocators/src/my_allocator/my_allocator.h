@@ -2,105 +2,140 @@
 
 #include <iostream>
 #include <memory>
+#include <cstring>
 
 namespace my_allocator
 {
 
-template <class T>
+template <class T, std::size_t N>
 class MyAllocator
 {
   public:
     using value_type = T;
-    MyAllocator(std::size_t n);
+
+    template<class M>
+    struct rebind
+    {
+        using other = MyAllocator<M, N>;
+    };
+
+    MyAllocator();
     ~MyAllocator();
-    template <class U> MyAllocator (const MyAllocator<U>& other);
+
+    MyAllocator (const MyAllocator<T, N>& other);
+
+    template <class U, std::size_t N1>
+    MyAllocator (const MyAllocator<U, N1>& other) = delete;
+
+    MyAllocator operator=(const MyAllocator<T, N>& other);
+
+    template <class U, std::size_t N1>
+    MyAllocator operator=(const MyAllocator<U, N1>& other) = delete;
+
+    // @todo Impelement move constructor and move assignment operator
+
     T* allocate(std::size_t n);
     void deallocate(T* p, std::size_t n);
-    std::size_t GetReservedSize() const;
 
   private:
-    std::size_t n_{0U};
     std::size_t counter_{0U};
     void* p_{nullptr};
-    T* current_pointer_{nullptr};
 };
 
-
-template <class T> 
-std::size_t MyAllocator<T>::GetReservedSize() const
+template <class T, std::size_t N>
+MyAllocator<T, N>::MyAllocator(const MyAllocator<T, N>& other)
+:
+counter_(other.counter_),
+p_{nullptr}
 {
-  return n_;
+  if(N > 0U)
+  {  
+    p_ = std::malloc(N * sizeof(T));
+  }
+
+  if(counter_ > 0U)
+  {
+    std::memcpy(p_, other.p_, (counter_ * sizeof(T)));
+  }
 }
 
-template <class T>
-MyAllocator<T>::~MyAllocator()
+template <class T, std::size_t N>
+MyAllocator<T, N> MyAllocator<T, N>::operator=(const MyAllocator<T, N>& other)
 {
-  current_pointer_ = nullptr;
+  if(&other == this)
+  {
+    return *this;
+  }
+
+  if(counter_ != other.counter_)
+  {
+    if(!p_)
+    {
+      free(p_);
+    }
+    
+    counter_ = other.counter_;
+
+    if(N > 0U)
+    {
+      p_ = std::malloc(N * sizeof(T));
+    }
+  }
+
+  if(!p_ && (counter_ > 0U))
+  {
+    std::memcpy(p_, other.p_, (counter_ * sizeof(T)));
+  }
+
+  return *this;
+}
+
+template <class T, std::size_t N>
+MyAllocator<T, N>::~MyAllocator()
+{
   if(!p_)
   {
     free(p_);
   }
 }
 
-template <class T>
-MyAllocator<T>::MyAllocator(std::size_t n)
+template <class T, std::size_t N>
+MyAllocator<T, N>::MyAllocator()
 :
-n_{n},
 counter_{0U}
 {
-  if(n_ > 0U)
+  if(N > 0U)
   {  
-    p_ = std::malloc(n_ * sizeof(T));
+    p_ = std::malloc(N * sizeof(T));
   }
 }
 
-template <class T>
-template <class U>
-MyAllocator<T>::MyAllocator(const MyAllocator<U>& other)
-:
-n_(other.GetReservedSize()),
-counter_{0U}
+template <class T, std::size_t N>
+T* MyAllocator<T, N>::allocate(std::size_t)
 {
-  if(n_ > 0U)
-  {  
-    p_ = std::malloc(n_ * sizeof(T));
-  }
-}
-
-template <class T>
-T* MyAllocator<T>::allocate(std::size_t)
-{
-	if (!p_ || (counter_ >= n_))
+	if (!p_ || (counter_ >= N))
   {
 		throw std::bad_alloc();
   }
 
-  if(counter_ == 0U)
-  {
-    current_pointer_ = reinterpret_cast<T *>(p_);
-  }
-  else
-  {
-    current_pointer_ += sizeof(T);
-  }
-
+  T* current_pointer{reinterpret_cast<T *>(p_) + counter_ * sizeof(T)};
   ++counter_; 
 
-	return current_pointer_;
+	return current_pointer;
 };
 
-template <class T>
-void MyAllocator<T>::deallocate(T*, std::size_t)
+template <class T, std::size_t N>
+void MyAllocator<T, N>::deallocate(T*, std::size_t)
 {};
 
-template <class T, class U>
-constexpr bool operator== (const MyAllocator<T>&, const MyAllocator<U>&) noexcept
+template <class T, class U, std::size_t N, std::size_t N1>
+constexpr bool operator== (const MyAllocator<T, N>&, const MyAllocator<U, N1>&) noexcept
 {
   return false;
 }
 
-template <class T, class U>
-constexpr bool operator!= (const MyAllocator<T>&, const MyAllocator<U>&) noexcept
+template <class T, class U, std::size_t N, std::size_t N1>
+constexpr bool operator!= (const MyAllocator<T, N>&, const MyAllocator<U, N1>&) noexcept
 {
   return false;
 }
