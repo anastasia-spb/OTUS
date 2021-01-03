@@ -24,17 +24,17 @@ class MyAllocator
     MyAllocator();
     ~MyAllocator();
 
-    MyAllocator (const MyAllocator<T, N>& other);
-
     template <class U, std::size_t N1>
     MyAllocator (const MyAllocator<U, N1>& other) = delete;
 
-    MyAllocator operator=(const MyAllocator<T, N>& other);
+    template <class U, std::size_t N1>
+    MyAllocator (MyAllocator<U, N1>&& other) = delete;
 
     template <class U, std::size_t N1>
     MyAllocator operator=(const MyAllocator<U, N1>& other) = delete;
 
-    // @todo Impelement move constructor and move assignment operator
+    template <class U, std::size_t N1>
+    MyAllocator operator=(MyAllocator<U, N1>&& other) = delete;
 
     T* allocate(std::size_t n);
     void deallocate(T* p, std::size_t n);
@@ -43,48 +43,6 @@ class MyAllocator
     std::size_t counter_{0U};
     void* p_{nullptr};
 };
-
-template <class T, std::size_t N>
-MyAllocator<T, N>::MyAllocator(const MyAllocator<T, N>& other)
-:
-counter_(other.counter_),
-p_{nullptr}
-{
- 
-  p_ = std::malloc(N * sizeof(T));
-
-  if(counter_ > 0U)
-  {
-    std::memcpy(p_, other.p_, (counter_ * sizeof(T)));
-  }
-}
-
-template <class T, std::size_t N>
-MyAllocator<T, N> MyAllocator<T, N>::operator=(const MyAllocator<T, N>& other)
-{
-  if(&other == this)
-  {
-    return *this;
-  }
-
-  if(counter_ != other.counter_)
-  {
-    if(!p_)
-    {
-      free(p_);
-    }
-    
-    counter_ = other.counter_;
-    p_ = std::malloc(N * sizeof(T));
-  }
-
-  if(!p_ && (counter_ > 0U))
-  {
-    std::memcpy(p_, other.p_, (counter_ * sizeof(T)));
-  }
-
-  return *this;
-}
 
 template <class T, std::size_t N>
 MyAllocator<T, N>::~MyAllocator()
@@ -97,22 +55,20 @@ MyAllocator<T, N>::~MyAllocator()
 
 template <class T, std::size_t N>
 MyAllocator<T, N>::MyAllocator()
-:
-counter_{0U}
 {
   p_ = std::malloc(N * sizeof(T));
 }
 
 template <class T, std::size_t N>
-T* MyAllocator<T, N>::allocate(std::size_t)
+T* MyAllocator<T, N>::allocate(std::size_t n)
 {
-	if (!p_ || (counter_ >= N))
+	if (!p_ || ((counter_ + n) > N))
   {
 		throw std::bad_alloc();
   }
 
   T* current_pointer{reinterpret_cast<T *>(p_) + counter_ * sizeof(T)};
-  ++counter_; 
+  counter_ += n;
 
 	return current_pointer;
 };

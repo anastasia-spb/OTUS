@@ -1,6 +1,7 @@
 #include "my_allocator.h"
 #include <gtest/gtest.h>
 #include <map>
+#include <vector>
 
 using element_type = std::pair<const int, int>;
 
