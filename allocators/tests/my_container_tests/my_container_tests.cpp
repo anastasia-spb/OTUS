@@ -18,7 +18,7 @@ TEST(MyContainerTest, PushElementIntoContainerAndAccessIt)
     const auto value{5.F};
     test_container.push_back(value);
 
-    EXPECT_EQ(test_container[0U], value);
+    EXPECT_EQ(test_container.at(0U), value);
 }
 
 TEST(MyContainerTest, PushElementIntoContainerWithStlAllocatorAndAccessIt)
@@ -27,7 +27,7 @@ TEST(MyContainerTest, PushElementIntoContainerWithStlAllocatorAndAccessIt)
     const auto value{5.F};
     test_container.push_back(value);
 
-    EXPECT_EQ(test_container[0U], value);
+    EXPECT_EQ(test_container.at(0U), value);
 }
 
 TEST(MyContainerTest, PushMoreElementsThanAllocated_ExpectBadAlloc)
@@ -45,5 +45,40 @@ TEST(MyContainerTest, AccessElementOutOfAllocatedMemory_ExpectBadAlloc)
     const auto value{5.F};
     test_container.push_back(value);
 
-    ASSERT_EXIT((std::cout << test_container[1U]),::testing::KilledBySignal(SIGSEGV),".*");
+    ASSERT_EXIT((std::cout << test_container.at(1U)),::testing::KilledBySignal(SIGSEGV),".*");
+}
+
+TEST(MyContainerTest, PushTenElemensCopyContainerAndCompareWithCopy)
+{
+    const auto num_elements{25U};
+    my_container::MyContainer<std::uint32_t, num_elements> test_container{};
+    for(auto i{0U}; i < num_elements; ++i)
+    {
+        test_container.push_back(i);
+    }
+
+    const auto test_container_copy{test_container};
+
+    EXPECT_EQ(test_container, test_container_copy);
+}
+
+TEST(MyContainerTest, PushTenElemensMoveContainer_ExpectContainerBeInvalid)
+{
+    const auto num_elements{25U};
+    const auto num_elements_to_push{20U};
+
+    my_container::MyContainer<std::uint32_t, num_elements> test_container_copy{};
+    {
+        my_container::MyContainer<std::uint32_t, num_elements> test_container{};
+        for(auto i{0U}; i < num_elements_to_push; ++i)
+        {
+            test_container.push_back(i);
+        }
+
+        test_container_copy = std::move(test_container);
+        EXPECT_THROW(test_container.push_back(num_elements_to_push), std::bad_alloc);
+    }
+
+    EXPECT_EQ(test_container_copy.size(), num_elements_to_push);
+    EXPECT_NO_THROW((test_container_copy.push_back(num_elements_to_push)));
 }
