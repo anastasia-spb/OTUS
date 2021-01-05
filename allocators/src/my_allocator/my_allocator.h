@@ -14,6 +14,11 @@ class MyAllocator
     static_assert((N != 0U), "Couldn't allocate memory for zero elements");
 
     using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = T*;
+    using const_pointer = const T*;
+    using reference = T&;
+    using const_reference = const T&;
 
     template<class M>
     struct rebind
@@ -45,22 +50,22 @@ class MyAllocator
 
   private:
     std::size_t counter_{0U};
-    void* p_{nullptr};
+    T* p_{nullptr};
+    std::size_t block_size_{0U};
 };
 
 template <class T, std::size_t N>
 MyAllocator<T, N>::~MyAllocator()
 {
-  if(!p_)
-  {
-    free(p_);
-  }
+  counter_ = 0U;
+  free(p_);
 }
 
 template <class T, std::size_t N>
 MyAllocator<T, N>::MyAllocator()
 {
-  p_ = std::malloc(N * sizeof(T));
+  block_size_ = sizeof(T) + (alignof(T) - sizeof(T) % alignof(T));
+  p_ = static_cast<T*>(std::malloc(N * block_size_));
 }
 
 template <class T, std::size_t N>
@@ -68,13 +73,11 @@ MyAllocator<T, N>& MyAllocator<T, N>::operator=(MyAllocator<T, N>&& other)
 {
   if (this != &other)
   {
-    if(!p_)
-    {
-      free(p_);
-    }
+    free(p_);
 
     counter_ = other.counter_;
     p_ = other.p_;
+    block_size_ = other.block_size_;
 
     other.p_ = nullptr;
     other.counter_ = 0U;
@@ -88,6 +91,7 @@ MyAllocator<T, N>::MyAllocator(MyAllocator<T, N>&& other)
 {
   counter_ = other.counter_;
   p_ = other.p_;
+  block_size_ = other.block_size_;
 
   other.p_ = nullptr;
   other.counter_ = 0U;
@@ -101,8 +105,10 @@ T* MyAllocator<T, N>::allocate(std::size_t n)
 		throw std::bad_alloc();
   }
 
-  T* current_pointer{reinterpret_cast<T *>(p_) + counter_ * sizeof(T)};
+  T* current_pointer{p_ + counter_};
   counter_ += n;
+
+  //std::cout << "Allocate at: " << current_pointer << " " << "\n";
 
 	return current_pointer;
 };

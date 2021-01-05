@@ -1,8 +1,7 @@
-add_subdirectory(version_lib)
 add_subdirectory(my_allocator)
 add_subdirectory(my_container)
 add_executable (my_allocator_cli main.cpp)
-target_link_libraries (my_allocator_cli version_lib my_allocator_lib my_container_lib)
+target_link_libraries (my_allocator_cli my_allocator_lib my_container_lib)
 
 install(TARGETS my_allocator_cli RUNTIME DESTINATION bin)
 
