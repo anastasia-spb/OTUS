@@ -8,20 +8,6 @@ using element_type = std::pair<const int, int>;
 template <std::size_t N>
 using allocator_type = my_allocator::MyAllocator<element_type, N>;
 
-namespace
-{
-unsigned int factorial(unsigned int n)
-{
-    unsigned int result{1U};
-    for(auto i{1U}; i <= n; ++i)
-    {
-        result *= i;
-    }
-        
-    return result;
-}
-}
-
 TEST(MyAllocatorTest, ConstructMapUsingCustomAllocator)
 {
     const auto elements_count{100U};
@@ -39,7 +25,7 @@ TEST(MyAllocatorTest, AddTenElementsToTheMapWithCustomAllocator)
     std::map<int, int, std::less<int>, allocator_type<10U>> my_map{};
     for(auto i{0U}; i < 10U; ++i)
     {
-        EXPECT_NO_THROW(my_map.emplace(std::pair<int, int>(i, factorial(i))));
+        EXPECT_NO_THROW(my_map.emplace(std::pair<int, int>(i, i)));
     }
 }
 
@@ -48,13 +34,13 @@ TEST(MyAllocatorTest, AddElementsToTheMapWithCustomAllocatorAndThenAccessThem)
     std::map<int, int, std::less<int>, allocator_type<10U>> my_map{};
     for(auto i{0U}; i < 10U; ++i)
     {
-        EXPECT_NO_THROW(my_map.emplace(std::pair<int, int>(i, factorial(i))));
+        EXPECT_NO_THROW(my_map.emplace(std::pair<int, int>(i, i)));
     }
 
     for(auto i{0U}; i < 10U; ++i)
     {
         EXPECT_NO_THROW(my_map[i]);
-        EXPECT_EQ(my_map[i], factorial(i));
+        EXPECT_EQ(my_map[i], i);
     }
 }
 

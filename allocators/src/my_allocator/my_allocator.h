@@ -51,7 +51,6 @@ class MyAllocator
   private:
     std::size_t counter_{0U};
     T* p_{nullptr};
-    std::size_t block_size_{0U};
 };
 
 template <class T, std::size_t N>
@@ -64,8 +63,7 @@ MyAllocator<T, N>::~MyAllocator()
 template <class T, std::size_t N>
 MyAllocator<T, N>::MyAllocator()
 {
-  block_size_ = sizeof(T) + (alignof(T) - sizeof(T) % alignof(T));
-  p_ = static_cast<T*>(std::malloc(N * block_size_));
+  p_ = static_cast<T*>(std::malloc(N * sizeof(T)));
 }
 
 template <class T, std::size_t N>
@@ -77,7 +75,6 @@ MyAllocator<T, N>& MyAllocator<T, N>::operator=(MyAllocator<T, N>&& other)
 
     counter_ = other.counter_;
     p_ = other.p_;
-    block_size_ = other.block_size_;
 
     other.p_ = nullptr;
     other.counter_ = 0U;
@@ -91,7 +88,6 @@ MyAllocator<T, N>::MyAllocator(MyAllocator<T, N>&& other)
 {
   counter_ = other.counter_;
   p_ = other.p_;
-  block_size_ = other.block_size_;
 
   other.p_ = nullptr;
   other.counter_ = 0U;
@@ -107,9 +103,6 @@ T* MyAllocator<T, N>::allocate(std::size_t n)
 
   T* current_pointer{p_ + counter_};
   counter_ += n;
-
-  //std::cout << "Allocate at: " << current_pointer << " " << "\n";
-
 	return current_pointer;
 };
 

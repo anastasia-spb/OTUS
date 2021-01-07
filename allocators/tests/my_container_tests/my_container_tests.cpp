@@ -89,8 +89,6 @@ TEST(MyContainerTest, PushElement_ThenChangeItsValue)
     EXPECT_EQ(test_container.at(0U), new_value);
 }
 
-/*
-
 TEST(MyContainerTest, FillContainerAndIterateThroughIt)
 {
     const auto num_of_elements{30U};
@@ -132,5 +130,3 @@ TEST(MyContainerTest, FillContainerAndFindElementInIt)
     const auto it_end{std::find(test_container.begin(), test_container.end(), 30.F)};
     EXPECT_EQ(test_container.end(), it_end);
 }
-
-*/

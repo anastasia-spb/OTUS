@@ -25,10 +25,10 @@ class MyContainer
         using pointer = T*;
         using reference = T&;
 
-        Iterator(size_type current_idx, T** elements_pointers)
+        Iterator(size_type current_idx, T** pp)
         :
         current_idx_(current_idx),
-        elements_pointers_(elements_pointers)
+        pp_(pp)
         {};
 
         Iterator& operator++()
@@ -45,24 +45,26 @@ class MyContainer
 
         Iterator& operator++(int)
         { 
-          current_idx_++;
-          return *this;
+          auto tmp(*this);
+          this->operator++();
+          return tmp;
         };
 
         Iterator& operator--(int)
         {
-          current_idx_--;
-          return *this;
+          auto tmp(*this);
+          this->operator--();
+          return tmp;
         };
 
         T& operator*()
         { 
-          return **(elements_pointers_ + current_idx_);
+          return **(pp_ + current_idx_);
         };
 
         T* operator->()
         { 
-          return *(elements_pointers_ + current_idx_);
+          return *(pp_ + current_idx_);
         };
 
         bool operator==(const Iterator& rhs)
@@ -74,9 +76,7 @@ class MyContainer
             equal = true;
             for(std::size_t i{0U}; i <= std::min((N - 1U), current_idx_); ++i)
             { 
-              const auto p{elements_pointers_ + i};
-              const auto rhs_p{rhs.elements_pointers_ + i};
-              if(*p != *rhs_p)
+              if(*(pp_ + i) != *(rhs.pp_ + i))
               {
                 equal = false;
                 break;
@@ -101,9 +101,7 @@ class MyContainer
 
             for(std::size_t i{0U}; i <= std::min((N - 1U), iter1.current_idx_); ++i)
             { 
-              const auto iter1_p{iter1.elements_pointers_ + i};
-              const auto iter2_p{iter2.elements_pointers_ + i};   
-              if(*iter1_p != *iter2_p)
+              if(*(iter1.pp_ + i) != *(iter2.pp_ + i))
               {
                 equal = false;
                 break;
@@ -123,17 +121,11 @@ class MyContainer
           // Points to the first pointer in 
           // array where pointers to allocated blocks
           // are stored
-          T** elements_pointers_;
+          T** pp_;
       };
     
     MyContainer() = default;
-    ~MyContainer()
-    {
-      for(auto i{0U}; i < counter_; ++i)
-      {
-        container_allocator_.deallocate(elements_pointers_[i], 1U);
-      }
-    }
+    ~MyContainer();
     
     MyContainer (const MyContainer<T, N, Allocator>& other);
     MyContainer& operator=(const MyContainer<T, N, Allocator>& other);
@@ -166,6 +158,15 @@ class MyContainer
     // current elements count
     size_type counter_{0U};
 };
+
+template <class T, std::size_t N, class Allocator>
+MyContainer<T, N, Allocator>::~MyContainer()
+{
+  for(auto i{0U}; i < counter_; ++i)
+  {
+    container_allocator_.deallocate(elements_pointers_[i], 1U);
+  }
+}
 
 template <class T, std::size_t N, class Allocator>
 MyContainer<T, N, Allocator>::MyContainer(const MyContainer<T, N, Allocator>& other)
@@ -246,7 +247,7 @@ template <class T, std::size_t N, class Allocator>
 void MyContainer<T, N, Allocator>::push_back(const T& element)
 {
   elements_pointers_[counter_] = container_allocator_.allocate(1U);
-  std::memcpy(elements_pointers_[counter_], &element, sizeof(T));
+  std::memcpy(elements_pointers_[counter_], &element, sizeof(element));
 
   ++counter_;
 }
