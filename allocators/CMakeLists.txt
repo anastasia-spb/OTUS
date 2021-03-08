@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-project(my_allocator VERSION 0.0.1)
+project(my_allocator VERSION 0.0.$ENV{BUILD_NUMBER})
 
 set(CMAKE_CXX_STANDARD 14)
 if(CMAKE_COMPILER_IS_GNUCXX)
