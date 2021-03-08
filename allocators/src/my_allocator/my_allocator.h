@@ -6,7 +6,6 @@
 
 namespace my_allocator
 {
-
 template <class T, std::size_t N>
 class MyAllocator
 {
@@ -121,5 +120,4 @@ constexpr bool operator!= (const MyAllocator<T, N>&, const MyAllocator<U, N1>&) 
 {
   return true;
 }
-
 } // my_allocator
