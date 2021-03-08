@@ -119,7 +119,7 @@ constexpr bool operator== (const MyAllocator<T, N>&, const MyAllocator<U, N1>&) 
 template <class T, class U, std::size_t N, std::size_t N1>
 constexpr bool operator!= (const MyAllocator<T, N>&, const MyAllocator<U, N1>&) noexcept
 {
-  return false;
+  return true;
 }
 
 } // my_allocator
