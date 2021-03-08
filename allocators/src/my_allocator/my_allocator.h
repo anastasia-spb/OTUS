@@ -29,20 +29,20 @@ class MyAllocator
     ~MyAllocator();
 
     template <class U, std::size_t N1>
-    MyAllocator (const MyAllocator<U, N1>& other) = delete;
+    MyAllocator (const MyAllocator<U, N1>& other){};
 
     MyAllocator (MyAllocator<T, N>&& other);
 
     template <class U, std::size_t N1>
-    MyAllocator (MyAllocator<U, N1>&& other) = delete;
+    MyAllocator (MyAllocator<U, N1>&& other){};
 
     template <class U, std::size_t N1>
-    MyAllocator& operator=(const MyAllocator<U, N1>& other) = delete;
+    MyAllocator& operator=(const MyAllocator<U, N1>& other){};
 
-    MyAllocator& operator=(MyAllocator<T, N>&& other);
+    MyAllocator& operator=(MyAllocator<T, N>&& other){};
 
     template <class U, std::size_t N1>
-    MyAllocator& operator=(MyAllocator<U, N1>&& other) = delete;
+    MyAllocator& operator=(MyAllocator<U, N1>&& other){};
 
     T* allocate(std::size_t n);
     void deallocate(T* p, std::size_t n);
@@ -57,30 +57,12 @@ MyAllocator<T, N>::~MyAllocator()
 {
   counter_ = 0U;
   free(p_);
+  p_ = nullptr;
 }
 
 template <class T, std::size_t N>
 MyAllocator<T, N>::MyAllocator()
-{
-  p_ = static_cast<T*>(std::malloc(N * sizeof(T)));
-}
-
-template <class T, std::size_t N>
-MyAllocator<T, N>& MyAllocator<T, N>::operator=(MyAllocator<T, N>&& other)
-{
-  if (this != &other)
-  {
-    free(p_);
-
-    counter_ = other.counter_;
-    p_ = other.p_;
-
-    other.p_ = nullptr;
-    other.counter_ = 0U;
-  }
-
-  return *this;
-}
+{}
 
 template <class T, std::size_t N>
 MyAllocator<T, N>::MyAllocator(MyAllocator<T, N>&& other)
@@ -95,6 +77,11 @@ MyAllocator<T, N>::MyAllocator(MyAllocator<T, N>&& other)
 template <class T, std::size_t N>
 T* MyAllocator<T, N>::allocate(std::size_t n)
 {
+  if(!p_)
+  {
+    p_ = static_cast<T*>(std::malloc(N * sizeof(T)));
+  }
+
 	if (!p_ || ((counter_ + n) > N))
   {
 		throw std::bad_alloc();

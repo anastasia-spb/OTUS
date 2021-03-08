@@ -56,27 +56,6 @@ TEST(MyContainerTest, PushTenElemensCopyContainerAndCompareWithCopy)
     EXPECT_EQ(test_container, test_container_copy);
 }
 
-TEST(MyContainerTest, PushTenElemensMoveContainer_ExpectContainerBeInvalid)
-{
-    const auto num_elements{25U};
-    const auto num_elements_to_push{20U};
-
-    my_container::MyContainer<std::uint32_t, num_elements> test_container_copy{};
-    {
-        my_container::MyContainer<std::uint32_t, num_elements> test_container{};
-        for(auto i{0U}; i < num_elements_to_push; ++i)
-        {
-            test_container.push_back(i);
-        }
-
-        test_container_copy = std::move(test_container);
-        EXPECT_THROW(test_container.push_back(num_elements_to_push), std::bad_alloc);
-    }
-
-    EXPECT_EQ(test_container_copy.size(), num_elements_to_push);
-    EXPECT_NO_THROW((test_container_copy.push_back(num_elements_to_push)));
-}
-
 TEST(MyContainerTest, PushElement_ThenChangeItsValue)
 {
     my_container::MyContainer<float, 1U> test_container{};
